@@ -1,183 +1,563 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Neon New Year</title>
-    <style>
-        :root {
-            --neon-cyan: #00f2ff;
-            --neon-pink: #ff00c1;
-            --neon-gold: #ffcc00;
-            --bg-dark: #020617;
-        }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VAULT — Premium Digital Products</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:       #09080c;
+      --bg2:      #0e0d13;
+      --surface:  #141219;
+      --surface2: #1a1820;
+      --border:   rgba(255,255,255,0.06);
+      --gold:     #c9a84c;
+      --gold2:    #f0d080;
+      --gold-dim: rgba(201,168,76,0.12);
+      --text:     #ede8e0;
+      --muted:    #7a7068;
+      --r:        12px;
+    }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg); color: var(--text);
+      font-family: 'Outfit', sans-serif; font-size: 16px;
+      line-height: 1.65; overflow-x: hidden;
+    }
+    body::after {
+      content: ''; position: fixed; inset: 0; z-index: 9999;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+    }
 
-        body {
-            margin: 0;
-            height: 100vh;
-            background: var(--bg-dark);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            perspective: 1200px;
-            font-family: 'Arial Black', Gadget, sans-serif;
-        }
+    /* NAV */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 22px 7vw;
+      background: rgba(9,8,12,0.92); backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border);
+    }
+    .logo { font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1.6rem; letter-spacing: 6px; text-transform: uppercase; color: var(--gold); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: 0.78rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; transition: color 0.3s; }
+    .nav-links a:hover { color: var(--gold); }
+    .nav-cta { border: 1px solid var(--gold); color: var(--gold); padding: 9px 24px; font-size: 0.76rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: background 0.3s, color 0.3s; }
+    .nav-cta:hover { background: var(--gold); color: #09080c; }
 
-        /* --- GLOWING TEXT --- */
-        .title-container {
-            position: absolute;
-            z-index: 100;
-            text-align: center;
-            pointer-events: none;
-            transform-style: preserve-3d;
-            animation: floatText 4s ease-in-out infinite;
-        }
+    /* HERO */
+    .hero {
+      min-height: 100vh; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; text-align: center;
+      padding: 160px 7vw 120px; position: relative; overflow: hidden;
+    }
+    .hero-orb { position: absolute; width: 700px; height: 700px; border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,0.07) 0%, transparent 65%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+    .hero-vline { position: absolute; top: 0; left: 50%; width: 1px; height: 100px; background: linear-gradient(to bottom, transparent, var(--gold)); opacity: 0.35; }
+    .eyebrow { display: flex; align-items: center; gap: 16px; color: var(--gold); font-size: 0.7rem; font-weight: 500; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 32px; animation: rise 1s ease both; }
+    .eyebrow::before,.eyebrow::after { content: ''; display: block; width: 40px; height: 1px; background: var(--gold); opacity: 0.4; }
+    h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 8vw, 7rem); font-weight: 600; line-height: 1.05; letter-spacing: -1px; max-width: 860px; animation: rise 1s 0.15s ease both; }
+    h1 em { font-style: italic; color: var(--gold); }
+    .hero-sub { max-width: 480px; font-size: 1rem; color: var(--muted); font-weight: 300; margin: 28px auto 52px; line-height: 1.85; animation: rise 1s 0.3s ease both; }
+    .hero-actions { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; animation: rise 1s 0.45s ease both; }
+    .btn-gold { background: var(--gold); color: #09080c; padding: 15px 38px; font-size: 0.8rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: background 0.3s, transform 0.2s; }
+    .btn-gold:hover { background: var(--gold2); transform: translateY(-2px); }
+    .btn-line { border: 1px solid rgba(201,168,76,0.35); color: var(--text); padding: 15px 38px; font-size: 0.8rem; font-weight: 500; letter-spacing: 2px; text-transform: uppercase; text-decoration: none; transition: border-color 0.3s, color 0.3s; }
+    .btn-line:hover { border-color: var(--gold); color: var(--gold); }
+    .hero-proof { display: flex; gap: 3.5rem; justify-content: center; flex-wrap: wrap; margin-top: 90px; padding-top: 50px; border-top: 1px solid var(--border); animation: rise 1s 0.6s ease both; }
+    .proof-num { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 700; color: var(--gold); line-height: 1; }
+    .proof-label { font-size: 0.7rem; color: var(--muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 6px; }
 
-        h1 {
-            font-size: 4rem;
-            margin: 0;
-            text-transform: uppercase;
-            color: #fff;
-            /* Infinite Blinking & Glowing Effect */
-            text-shadow: 
-                0 0 10px #fff,
-                0 0 20px var(--neon-cyan),
-                0 0 40px var(--neon-pink),
-                0 0 80px var(--neon-cyan);
-            animation: neonBlink 1.5s infinite alternate;
-        }
+    /* SECTION SHARED */
+    section { padding: 110px 7vw; position: relative; }
+    .sec-label { font-size: 0.7rem; font-weight: 600; letter-spacing: 4px; text-transform: uppercase; color: var(--gold); margin-bottom: 18px; }
+    .sec-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.2rem, 5vw, 3.8rem); font-weight: 600; line-height: 1.1; }
+    .sec-title em { font-style: italic; color: var(--gold); }
 
-        @keyframes neonBlink {
-            0% { opacity: 0.8; filter: brightness(1); transform: scale(1); }
-            100% { opacity: 1; filter: brightness(1.8); transform: scale(1.05); }
-        }
+    /* PRODUCTS */
+    #products { background: var(--bg2); }
+    .prod-intro p { color: var(--muted); font-weight: 300; margin-top: 18px; font-size: 1rem; line-height: 1.85; max-width: 500px; }
+    .cats { display: flex; gap: 10px; flex-wrap: wrap; margin: 32px 0 0; }
+    .cat { border: 1px solid var(--border); color: var(--muted); padding: 7px 18px; font-size: 0.76rem; letter-spacing: 1.5px; text-transform: uppercase; cursor: pointer; transition: all 0.2s; }
+    .cat:hover, .cat.on { border-color: var(--gold); color: var(--gold); }
+    .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1px; background: var(--border); margin-top: 48px; }
+    .pc { background: var(--surface); overflow: hidden; position: relative; transition: background 0.3s; }
+    .pc:hover { background: var(--surface2); }
+    .pc-badge { position: absolute; top: 14px; right: 14px; z-index: 2; background: var(--gold); color: #09080c; font-size: 0.62rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 4px 10px; }
+    .pc-thumb { height: 180px; display: flex; align-items: center; justify-content: center; font-size: 3.2rem; position: relative; }
+    .pc-thumb::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, transparent 50%, var(--surface) 100%); }
+    .pc:hover .pc-thumb::after { background: linear-gradient(to bottom, transparent 50%, var(--surface2) 100%); }
+    .pc-body { padding: 24px 26px 30px; }
+    .pc-type { font-size: 0.66rem; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; font-weight: 600; margin-bottom: 8px; }
+    .pc-name { font-family: 'Cormorant Garamond', serif; font-size: 1.45rem; font-weight: 600; line-height: 1.2; margin-bottom: 10px; }
+    .pc-desc { color: var(--muted); font-size: 0.86rem; line-height: 1.75; margin-bottom: 20px; }
+    .pc-foot { display: flex; align-items: center; justify-content: space-between; }
+    .pc-price { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 700; color: var(--gold); }
+    .pc-price s { font-family: 'Outfit', sans-serif; font-size: 0.78rem; color: var(--muted); font-weight: 400; margin-right: 4px; }
+    .pc-btn { font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; color: var(--gold); border: 1px solid rgba(201,168,76,0.3); padding: 8px 16px; text-decoration: none; transition: background 0.25s, color 0.25s; }
+    .pc-btn:hover { background: var(--gold); color: #09080c; }
 
-        @keyframes floatText {
-            0%, 100% { transform: translateZ(50px) translateY(0); }
-            50% { transform: translateZ(100px) translateY(-20px); }
-        }
+    /* BUNDLES */
+    #bundles { background: var(--bg); }
+    .bundle { background: var(--surface); border: 1px solid var(--border); display: grid; grid-template-columns: 1fr 1fr; margin-bottom: 2px; transition: border-color 0.3s; overflow: hidden; }
+    .bundle:hover { border-color: rgba(201,168,76,0.3); }
+    .b-vis { background: linear-gradient(135deg,#1a1820,#0e0d13); min-height: 280px; display: flex; align-items: center; justify-content: center; font-size: 4rem; position: relative; }
+    .b-vis::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 50% 50%, rgba(201,168,76,0.07), transparent 65%); }
+    .b-body { padding: 44px 40px; }
+    .b-tag { font-size: 0.66rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); font-weight: 600; margin-bottom: 14px; }
+    .b-name { font-family: 'Cormorant Garamond', serif; font-size: 1.9rem; font-weight: 600; line-height: 1.2; margin-bottom: 14px; }
+    .b-desc { color: var(--muted); font-size: 0.88rem; line-height: 1.8; margin-bottom: 22px; }
+    .b-list { list-style: none; margin-bottom: 28px; }
+    .b-list li { font-size: 0.84rem; color: var(--muted); padding: 7px 0; border-bottom: 1px solid var(--border); display: flex; gap: 10px; }
+    .b-list li:last-child { border: none; }
+    .b-list li::before { content: '—'; color: var(--gold); flex-shrink: 0; }
+    .b-price-row { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 26px; }
+    .b-price { font-family: 'Cormorant Garamond', serif; font-size: 2.8rem; font-weight: 700; color: var(--gold); }
+    .b-was { color: var(--muted); font-size: 0.88rem; text-decoration: line-through; }
+    .b-save { background: var(--gold-dim); border: 1px solid rgba(201,168,76,0.2); color: var(--gold); font-size: 0.7rem; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; padding: 3px 10px; }
 
-        /* --- 3D SCENE --- */
-        .scene {
-            width: 100%;
-            height: 100%;
-            position: absolute;
-            transform-style: preserve-3d;
-        }
+    /* TESTIMONIALS */
+    #testi { background: var(--bg2); }
+    .tg { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: var(--border); margin-top: 64px; }
+    .tc { background: var(--surface); padding: 34px 30px; transition: background 0.3s; }
+    .tc:hover { background: var(--surface2); }
+    .stars { color: var(--gold); letter-spacing: 3px; font-size: 0.82rem; margin-bottom: 18px; }
+    .tq { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; line-height: 1.75; margin-bottom: 26px; }
+    .ta { display: flex; align-items: center; gap: 14px; }
+    .av { width: 42px; height: 42px; border: 1px solid rgba(201,168,76,0.3); display: flex; align-items: center; justify-content: center; font-family: 'Cormorant Garamond', serif; font-weight: 700; font-size: 1rem; color: var(--gold); flex-shrink: 0; }
+    .an { font-weight: 600; font-size: 0.88rem; }
+    .ar { font-size: 0.76rem; color: var(--muted); }
 
-        .firework {
-            position: absolute;
-            width: 0; height: 0;
-            transform-style: preserve-3d;
-            animation: burst 4s infinite linear;
-        }
+    /* PROCESS */
+    #process { background: var(--bg); }
+    .steps { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1px; background: var(--border); margin-top: 64px; }
+    .step { background: var(--surface); padding: 40px 30px; transition: background 0.3s; }
+    .step:hover { background: var(--surface2); }
+    .sn { font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 700; color: rgba(201,168,76,0.15); line-height: 1; margin-bottom: 18px; }
+    .st { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-weight: 600; margin-bottom: 10px; }
+    .sd { color: var(--muted); font-size: 0.86rem; line-height: 1.8; }
 
-        @keyframes burst {
-            0% { transform: translate3d(var(--x), var(--y), -800px) scale(0); opacity: 0; }
-            10% { opacity: 1; }
-            45% { transform: translate3d(var(--x), var(--y), 0) scale(1.2); }
-            100% { transform: translate3d(var(--x), var(--y), 400px) scale(1.5); opacity: 0; }
-        }
+    /* PRICING */
+    #pricing { background: var(--bg2); }
+    .pg { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1px; background: var(--border); margin-top: 64px; }
+    .price-card { background: var(--surface); padding: 44px 34px; position: relative; transition: background 0.3s; }
+    .price-card:hover { background: var(--surface2); }
+    .price-card.feat { background: var(--surface2); outline: 1px solid rgba(201,168,76,0.4); }
+    .price-card.feat::before { content: 'BEST VALUE'; position: absolute; top: -1px; right: 22px; background: var(--gold); color: #09080c; font-size: 0.6rem; font-weight: 700; letter-spacing: 2px; padding: 4px 12px; }
+    .pn { font-size: 0.7rem; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 18px; }
+    .pp { font-family: 'Cormorant Garamond', serif; font-size: 4rem; font-weight: 700; color: var(--gold); line-height: 1; margin-bottom: 4px; }
+    .pp sup { font-size: 1.4rem; vertical-align: top; margin-top: 14px; display: inline-block; }
+    .pb { font-size: 0.78rem; color: var(--muted); margin-bottom: 26px; }
+    .pd { color: var(--muted); font-size: 0.86rem; line-height: 1.75; margin-bottom: 26px; padding-bottom: 26px; border-bottom: 1px solid var(--border); }
+    .pf { list-style: none; margin-bottom: 34px; }
+    .pf li { display: flex; align-items: flex-start; gap: 12px; font-size: 0.86rem; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .pf li:last-child { border: none; }
+    .ck { color: var(--gold); flex-shrink: 0; }
+    .cx { color: var(--muted); flex-shrink: 0; opacity: 0.4; }
+    .pcta { display: block; text-align: center; padding: 13px; font-size: 0.76rem; letter-spacing: 2px; text-transform: uppercase; font-weight: 600; text-decoration: none; transition: all 0.3s; }
+    .pcta.solid { background: var(--gold); color: #09080c; }
+    .pcta.solid:hover { background: var(--gold2); }
+    .pcta.out { border: 1px solid rgba(201,168,76,0.3); color: var(--gold); }
+    .pcta.out:hover { background: var(--gold-dim); }
 
-        .spark {
-            position: absolute;
-            width: 4px; height: 4px;
-            border-radius: 50%;
-            background: var(--color);
-            box-shadow: 0 0 10px var(--color), 0 0 20px #fff;
-            animation: spark-fade 4s infinite linear;
-        }
+    /* FAQ */
+    #faq { background: var(--bg); }
+    .faq-wrap { max-width: 700px; margin: 64px auto 0; }
+    .fi { border-bottom: 1px solid var(--border); }
+    .fq { display: flex; justify-content: space-between; align-items: center; padding: 24px 0; cursor: pointer; font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 600; transition: color 0.2s; }
+    .fq:hover { color: var(--gold); }
+    .fi-icon { color: var(--gold); font-size: 1.3rem; transition: transform 0.3s; }
+    .fi.open .fi-icon { transform: rotate(45deg); }
+    .fa { display: none; padding-bottom: 24px; color: var(--muted); font-size: 0.9rem; line-height: 1.85; }
+    .fi.open .fa { display: block; }
 
-        @keyframes spark-fade {
-            0%, 40% { opacity: 1; transform: translate3d(0,0,0); }
-            100% { opacity: 0; transform: translate3d(var(--dx), var(--dy), var(--dz)); }
-        }
+    /* CTA */
+    .cta-sec { background: var(--bg2); text-align: center; padding: 130px 7vw; position: relative; overflow: hidden; }
+    .cta-sec::before { content: ''; position: absolute; width: 500px; height: 500px; border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,0.06), transparent 65%); top: 50%; left: 50%; transform: translate(-50%,-50%); pointer-events: none; }
+    .cta-sec h2 { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem, 6vw, 5rem); font-weight: 600; line-height: 1.1; margin-bottom: 22px; }
+    .cta-sec h2 em { font-style: italic; color: var(--gold); }
+    .cta-sec p { color: var(--muted); font-size: 1rem; max-width: 420px; margin: 0 auto 46px; font-weight: 300; line-height: 1.85; }
+    .guarantee { display: inline-flex; align-items: center; gap: 10px; margin-top: 28px; font-size: 0.78rem; color: var(--muted); border: 1px solid var(--border); padding: 10px 22px; }
+    .guarantee span { color: var(--gold); }
 
-        .hint {
-            position: absolute;
-            bottom: 20px;
-            color: rgba(255,255,255,0.4);
-            font-size: 0.8rem;
-            letter-spacing: 2px;
-        }
-    </style>
+    /* FOOTER */
+    footer { border-top: 1px solid var(--border); padding: 48px 7vw; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 24px; }
+    .fl { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 700; letter-spacing: 5px; text-transform: uppercase; color: var(--gold); }
+    .flinks { display: flex; gap: 2rem; flex-wrap: wrap; }
+    .flinks a { color: var(--muted); text-decoration: none; font-size: 0.76rem; letter-spacing: 1.5px; text-transform: uppercase; transition: color 0.2s; }
+    .flinks a:hover { color: var(--gold); }
+    .fcopy { color: var(--muted); font-size: 0.76rem; letter-spacing: 1px; }
+
+    /* ANIMATIONS */
+    @keyframes rise { from { opacity:0; transform: translateY(30px); } to { opacity:1; transform: translateY(0); } }
+    .reveal { opacity: 0; transform: translateY(22px); transition: opacity 0.8s ease, transform 0.8s ease; }
+    .reveal.on { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .bundle { grid-template-columns: 1fr; }
+      .b-vis { min-height: 150px; }
+      footer { justify-content: center; text-align: center; }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="title-container">
-        <h1>Happy New Year</h1>
+<!-- NAV -->
+<nav>
+  <div class="logo">Vault</div>
+  <ul class="nav-links">
+    <li><a href="#products">Products</a></li>
+    <li><a href="#bundles">Bundles</a></li>
+    <li><a href="#pricing">Membership</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#products" class="nav-cta">Browse Collection</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-vline"></div>
+  <div class="eyebrow">Premium Digital Collection</div>
+  <h1>Knowledge That<br/><em>Pays For Itself</em></h1>
+  <p class="hero-sub">Curated templates, courses, and ebooks crafted for creators, entrepreneurs, and professionals who demand excellence.</p>
+  <div class="hero-actions">
+    <a href="#products" class="btn-gold">Explore Collection</a>
+    <a href="#bundles" class="btn-line">View Bundles</a>
+  </div>
+  <div class="hero-proof">
+    <div><div class="proof-num">8,400+</div><div class="proof-label">Products Sold</div></div>
+    <div><div class="proof-num">4.9★</div><div class="proof-label">Avg. Rating</div></div>
+    <div><div class="proof-num">230+</div><div class="proof-label">Items in Vault</div></div>
+    <div><div class="proof-num">30-Day</div><div class="proof-label">Money-Back Guarantee</div></div>
+  </div>
+</section>
+
+<!-- PRODUCTS -->
+<section id="products">
+  <div class="prod-intro reveal">
+    <div class="sec-label">The Collection</div>
+    <div class="sec-title">Handpicked for<br/><em>High Performers</em></div>
+    <p>Every product is obsessively refined — built to give you a real edge. No filler. No fluff. Just results.</p>
+  </div>
+  <div class="cats reveal">
+    <div class="cat on">All</div>
+    <div class="cat">Templates</div>
+    <div class="cat">Courses</div>
+    <div class="cat">Ebooks</div>
+    <div class="cat">Notion Kits</div>
+    <div class="cat">Canva Packs</div>
+  </div>
+  <div class="products-grid">
+    <div class="pc reveal">
+      <div class="pc-badge">Bestseller</div>
+      <div class="pc-thumb" style="background:linear-gradient(135deg,#1a1820,#0e0d13)">📐</div>
+      <div class="pc-body">
+        <div class="pc-type">Notion Template</div>
+        <div class="pc-name">Ultimate Business OS</div>
+        <div class="pc-desc">A complete Notion workspace — projects, clients, finances, and goals all in one place.</div>
+        <div class="pc-foot">
+          <div class="pc-price"><s>$79</s>$39</div>
+          <a href="#" class="pc-btn">Buy Now</a>
+        </div>
+      </div>
     </div>
+    <div class="pc reveal">
+      <div class="pc-thumb" style="background:linear-gradient(135deg,#13101a,#0e0d13)">📚</div>
+      <div class="pc-body">
+        <div class="pc-type">Ebook</div>
+        <div class="pc-name">The 6-Figure Freelancer Blueprint</div>
+        <div class="pc-desc">Step-by-step playbook for building a freelance business that earns $100K+ from scratch.</div>
+        <div class="pc-foot">
+          <div class="pc-price"><s>$49</s>$27</div>
+          <a href="#" class="pc-btn">Buy Now</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc reveal">
+      <div class="pc-badge">New</div>
+      <div class="pc-thumb" style="background:linear-gradient(135deg,#111520,#0a0d13)">🎓</div>
+      <div class="pc-body">
+        <div class="pc-type">Online Course</div>
+        <div class="pc-name">AI Automation Mastery</div>
+        <div class="pc-desc">Build powerful n8n and Make.com workflows. 12 modules, real projects, lifetime access.</div>
+        <div class="pc-foot">
+          <div class="pc-price"><s>$197</s>$97</div>
+          <a href="#" class="pc-btn">Buy Now</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc reveal">
+      <div class="pc-thumb" style="background:linear-gradient(135deg,#1a1510,#100e0a)">🎨</div>
+      <div class="pc-body">
+        <div class="pc-type">Canva Template Pack</div>
+        <div class="pc-name">Premium Brand Kit — 200 Templates</div>
+        <div class="pc-desc">Posts, stories, pitch decks, and media kits. Fully editable. Professional results in minutes.</div>
+        <div class="pc-foot">
+          <div class="pc-price"><s>$59</s>$29</div>
+          <a href="#" class="pc-btn">Buy Now</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc reveal">
+      <div class="pc-thumb" style="background:linear-gradient(135deg,#0e1320,#090c13)">📧</div>
+      <div class="pc-body">
+        <div class="pc-type">Swipe File</div>
+        <div class="pc-name">Cold Email Arsenal — 50 Scripts</div>
+        <div class="pc-desc">50 battle-tested email scripts that generate meetings, clients, and deals. Copy and send.</div>
+        <div class="pc-foot">
+          <div class="pc-price"><s>$37</s>$19</div>
+          <a href="#" class="pc-btn">Buy Now</a>
+        </div>
+      </div>
+    </div>
+    <div class="pc reveal">
+      <div class="pc-thumb" style="background:linear-gradient(135deg,#1a1018,#0d0a10)">💡</div>
+      <div class="pc-body">
+        <div class="pc-type">Mini Course</div>
+        <div class="pc-name">Content Creator's Fast Track</div>
+        <div class="pc-desc">From zero to 10K followers in 90 days. Strategy, scripting, editing, and monetization.</div>
+        <div class="pc-foot">
+          <div class="pc-price"><s>$129</s>$67</div>
+          <a href="#" class="pc-btn">Buy Now</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <div class="scene" id="scene"></div>
+<!-- BUNDLES -->
+<section id="bundles">
+  <div class="sec-label reveal">Bundles</div>
+  <div class="sec-title reveal">More value.<br/><em>One price.</em></div>
+  <div style="margin-top:60px">
+    <div class="bundle reveal">
+      <div class="b-vis">🏆</div>
+      <div class="b-body">
+        <div class="b-tag">Bundle — Save 60%</div>
+        <div class="b-name">The Creator's Complete Toolkit</div>
+        <div class="b-desc">Everything a modern digital creator needs — from brand identity to content strategy to client acquisition.</div>
+        <ul class="b-list">
+          <li>Premium Brand Kit (200 Canva Templates)</li>
+          <li>Content Creator's Fast Track Course</li>
+          <li>Cold Email Arsenal (50 Scripts)</li>
+          <li>6-Figure Freelancer Blueprint (Ebook)</li>
+        </ul>
+        <div class="b-price-row">
+          <div class="b-price">$79</div>
+          <div class="b-was">$142 separately</div>
+          <div class="b-save">SAVE $63</div>
+        </div>
+        <a href="#" class="btn-gold">Get This Bundle</a>
+      </div>
+    </div>
+    <div style="height:2px"></div>
+    <div class="bundle reveal">
+      <div class="b-vis">⚡</div>
+      <div class="b-body">
+        <div class="b-tag">Bundle — Save 55%</div>
+        <div class="b-name">The Business Builder's Vault</div>
+        <div class="b-desc">For entrepreneurs serious about building systems. Automate, organize, and scale with world-class digital tools.</div>
+        <ul class="b-list">
+          <li>Ultimate Notion Business OS (Template)</li>
+          <li>AI Automation Mastery (Full Course)</li>
+          <li>6-Figure Freelancer Blueprint (Ebook)</li>
+        </ul>
+        <div class="b-price-row">
+          <div class="b-price">$99</div>
+          <div class="b-was">$163 separately</div>
+          <div class="b-save">SAVE $64</div>
+        </div>
+        <a href="#" class="btn-gold">Get This Bundle</a>
+      </div>
+    </div>
+  </div>
+</section>
 
-    <p class="hint">TAP TO LAUNCH FIREWORKS</p>
+<!-- TESTIMONIALS -->
+<section id="testi">
+  <div style="text-align:center" class="reveal">
+    <div class="sec-label">What Customers Say</div>
+    <div class="sec-title">Real results from<br/><em>real people</em></div>
+  </div>
+  <div class="tg">
+    <div class="tc reveal">
+      <div class="stars">★★★★★</div>
+      <div class="tq">"The Notion Business OS alone was worth 10x the price. I replaced 4 apps with one workspace. My business finally has a brain."</div>
+      <div class="ta"><div class="av">AC</div><div><div class="an">Andrea Chen</div><div class="ar">UX Designer & Freelancer</div></div></div>
+    </div>
+    <div class="tc reveal">
+      <div class="stars">★★★★★</div>
+      <div class="tq">"I was skeptical of digital courses, but the AI Automation Mastery changed my workflow completely. I now save 20+ hours every week. Unreal ROI."</div>
+      <div class="ta"><div class="av">MR</div><div><div class="an">Marco Reyes</div><div class="ar">Agency Owner, Manila</div></div></div>
+    </div>
+    <div class="tc reveal">
+      <div class="stars">★★★★★</div>
+      <div class="tq">"Used the Cold Email scripts on a Friday, sent 20 emails over the weekend, and booked 3 discovery calls by Monday. This stuff works."</div>
+      <div class="ta"><div class="av">SL</div><div><div class="an">Sophie Laurent</div><div class="ar">B2B SaaS Founder</div></div></div>
+    </div>
+    <div class="tc reveal">
+      <div class="stars">★★★★★</div>
+      <div class="tq">"The Brand Kit is gorgeous. I've gotten three new clients who hired me specifically because my Instagram looked so polished. Paid for itself in a week."</div>
+      <div class="ta"><div class="av">JP</div><div><div class="an">Jake P.</div><div class="ar">Social Media Consultant</div></div></div>
+    </div>
+  </div>
+</section>
 
-    <script>
-        const scene = document.getElementById('scene');
-        const colors = ['#00f2ff', '#ff00c1', '#39ff14', '#ffcc00', '#ff4d4d'];
+<!-- HOW IT WORKS -->
+<section id="process">
+  <div style="text-align:center" class="reveal">
+    <div class="sec-label">The Process</div>
+    <div class="sec-title">Instant access.<br/><em>Immediate results.</em></div>
+  </div>
+  <div class="steps">
+    <div class="step reveal"><div class="sn">01</div><div class="st">Choose Your Product</div><div class="sd">Browse our curated collection. Pick what fits your goals — individual products or bundles.</div></div>
+    <div class="step reveal"><div class="sn">02</div><div class="st">Secure Checkout</div><div class="sd">Pay once. No subscriptions on single items. All transactions secured by Stripe encryption.</div></div>
+    <div class="step reveal"><div class="sn">03</div><div class="st">Instant Delivery</div><div class="sd">Download immediately. Your files are available forever in your personal library.</div></div>
+    <div class="step reveal"><div class="sn">04</div><div class="st">Transform Your Work</div><div class="sd">Implement, apply, and watch your business or brand elevate within days — not months.</div></div>
+  </div>
+</section>
 
-        // Function to create a firework
-        function createFirework(xPos, yPos, isManual = false) {
-            const fw = document.createElement('div');
-            fw.className = 'firework';
-            
-            // Random or specific position
-            const x = xPos || (Math.random() * window.innerWidth - window.innerWidth / 2);
-            const y = yPos || (Math.random() * window.innerHeight - window.innerHeight / 2);
-            const color = colors[Math.floor(Math.random() * colors.length)];
+<!-- PRICING -->
+<section id="pricing">
+  <div style="text-align:center" class="reveal">
+    <div class="sec-label">Membership</div>
+    <div class="sec-title">Unlimited access to<br/><em>everything</em></div>
+    <p style="color:var(--muted);margin-top:16px;font-size:0.9rem;font-weight:300">Or buy individual products anytime. Your choice.</p>
+  </div>
+  <div class="pg">
+    <div class="price-card reveal">
+      <div class="pn">Single Purchase</div>
+      <div class="pp">Varies</div>
+      <div class="pb">Pay per product · own forever</div>
+      <div class="pd">Perfect if you know exactly what you need. One payment, lifetime access.</div>
+      <ul class="pf">
+        <li><span class="ck">✓</span> Lifetime access to purchased item</li>
+        <li><span class="ck">✓</span> All future updates included</li>
+        <li><span class="ck">✓</span> Instant download</li>
+        <li><span class="cx">✗</span> Full library access</li>
+        <li><span class="cx">✗</span> New monthly drops</li>
+        <li><span class="cx">✗</span> Community access</li>
+      </ul>
+      <a href="#products" class="pcta out">Browse Products</a>
+    </div>
+    <div class="price-card feat reveal">
+      <div class="pn">Vault Pass — Monthly</div>
+      <div class="pp"><sup>$</sup>29</div>
+      <div class="pb">per month · cancel anytime</div>
+      <div class="pd">Unlimited access to every product. New drops every month included.</div>
+      <ul class="pf">
+        <li><span class="ck">✓</span> Access to all 230+ products</li>
+        <li><span class="ck">✓</span> New products added monthly</li>
+        <li><span class="ck">✓</span> All formats, instant download</li>
+        <li><span class="ck">✓</span> Private community access</li>
+        <li><span class="ck">✓</span> Priority support</li>
+        <li><span class="cx">✗</span> Lifetime access post-cancellation</li>
+      </ul>
+      <a href="#" class="pcta solid">Start Free Trial</a>
+    </div>
+    <div class="price-card reveal">
+      <div class="pn">Vault Pass — Annual</div>
+      <div class="pp"><sup>$</sup>199</div>
+      <div class="pb">per year · save $149</div>
+      <div class="pd">Everything in Monthly, plus you keep every product you download — permanently.</div>
+      <ul class="pf">
+        <li><span class="ck">✓</span> Access to all 230+ products</li>
+        <li><span class="ck">✓</span> New products added monthly</li>
+        <li><span class="ck">✓</span> All formats, instant download</li>
+        <li><span class="ck">✓</span> Private community access</li>
+        <li><span class="ck">✓</span> Priority support</li>
+        <li><span class="ck">✓</span> Keep everything you download</li>
+      </ul>
+      <a href="#" class="pcta out">Get Annual Access</a>
+    </div>
+  </div>
+</section>
 
-            fw.style.setProperty('--x', `${x}px`);
-            fw.style.setProperty('--y', `${y}px`);
-            fw.style.setProperty('--color', color);
+<!-- FAQ -->
+<section id="faq">
+  <div style="text-align:center" class="reveal">
+    <div class="sec-label">FAQ</div>
+    <div class="sec-title">Questions<br/><em>answered.</em></div>
+  </div>
+  <div class="faq-wrap">
+    <div class="fi open reveal">
+      <div class="fq">What format are products delivered in? <span class="fi-icon">+</span></div>
+      <div class="fa">Products are delivered as PDF, Notion templates (via shared link), Canva templates (via link), or video courses (streamed online). Format is clearly listed on each product page.</div>
+    </div>
+    <div class="fi reveal">
+      <div class="fq">Is there a refund policy? <span class="fi-icon">+</span></div>
+      <div class="fa">Yes. We offer a 30-day money-back guarantee on all purchases, no questions asked. If you're not satisfied, we'll refund you within 48 hours.</div>
+    </div>
+    <div class="fi reveal">
+      <div class="fq">Can I use these for client work? <span class="fi-icon">+</span></div>
+      <div class="fa">Templates and ebooks are licensed for personal and client use. You may use them to deliver work to clients, but you may not resell the original files.</div>
+    </div>
+    <div class="fi reveal">
+      <div class="fq">How do I access my purchases? <span class="fi-icon">+</span></div>
+      <div class="fa">After purchase you'll receive an email with your download links and access to a personal library where all your purchases are permanently stored.</div>
+    </div>
+    <div class="fi reveal">
+      <div class="fq">Do products get updated? <span class="fi-icon">+</span></div>
+      <div class="fa">Yes. All updates to products you've purchased are free, forever. When we release a new version, you'll be notified and can download the update from your library.</div>
+    </div>
+  </div>
+</section>
 
-            // Generate 40 sparks
-            for (let i = 0; i < 40; i++) {
-                const spark = document.createElement('div');
-                spark.className = 'spark';
-                
-                const angle = Math.random() * Math.PI * 2;
-                const elevation = (Math.random() - 0.5) * Math.PI;
-                const dist = 100 + Math.random() * 150;
+<!-- CTA -->
+<div class="cta-sec">
+  <h2>Your edge is<br/><em>one click away.</em></h2>
+  <p>Join thousands of creators and entrepreneurs who invested in their craft — and never looked back.</p>
+  <a href="#products" class="btn-gold">Enter the Vault</a>
+  <br/>
+  <div class="guarantee"><span>✦</span> 30-Day Money-Back Guarantee &nbsp;·&nbsp; Instant Download &nbsp;·&nbsp; Lifetime Access</div>
+</div>
 
-                const dx = Math.cos(angle) * Math.cos(elevation) * dist;
-                const dy = Math.sin(angle) * Math.cos(elevation) * dist;
-                const dz = Math.sin(elevation) * dist;
+<!-- FOOTER -->
+<footer>
+  <div class="fl">Vault</div>
+  <div class="flinks">
+    <a href="#">Privacy Policy</a>
+    <a href="#">Terms of Use</a>
+    <a href="#">Refund Policy</a>
+    <a href="#">Affiliates</a>
+    <a href="#">Contact</a>
+  </div>
+  <div class="fcopy">© 2025 Vault Digital. All rights reserved.</div>
+</footer>
 
-                spark.style.setProperty('--dx', `${dx}px`);
-                spark.style.setProperty('--dy', `${dy}px`);
-                spark.style.setProperty('--dz', `${dz}px`);
-                
-                fw.appendChild(spark);
-            }
+<script>
+  // FAQ
+  document.querySelectorAll('.fq').forEach(q => {
+    q.addEventListener('click', () => {
+      const item = q.parentElement;
+      const wasOpen = item.classList.contains('open');
+      document.querySelectorAll('.fi').forEach(f => f.classList.remove('open'));
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
 
-            scene.appendChild(fw);
+  // Reveal on scroll
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach((e, i) => {
+      if (e.isIntersecting) {
+        setTimeout(() => e.target.classList.add('on'), i * 70);
+        obs.unobserve(e.target);
+      }
+    });
+  }, { threshold: 0.07 });
+  document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
 
-            // Remove manual fireworks after animation
-            if (isManual) {
-                setTimeout(() => fw.remove(), 4000);
-            }
-        }
-
-        // Auto-launch 5 background fireworks
-        for(let i=0; i<5; i++) {
-            setTimeout(() => createFirework(), i * 800);
-        }
-
-        // Manual Launch on Click/Tap
-        document.addEventListener('mousedown', (e) => {
-            const x = e.clientX - window.innerWidth / 2;
-            const y = e.clientY - window.innerHeight / 2;
-            createFirework(x, y, true);
-        });
-
-        // 3D Rotation with Mouse
-        document.addEventListener('mousemove', (e) => {
-            const xRot = (window.innerHeight / 2 - e.pageY) / 25;
-            const yRot = (e.pageX - window.innerWidth / 2) / 25;
-            scene.style.transform = `rotateX(${xRot}deg) rotateY(${yRot}deg)`;
-        });
-    </script>
+  // Category chips
+  document.querySelectorAll('.cat').forEach(c => {
+    c.addEventListener('click', () => {
+      document.querySelectorAll('.cat').forEach(x => x.classList.remove('on'));
+      c.classList.add('on');
+    });
+  });
+</script>
 </body>
 </html>
