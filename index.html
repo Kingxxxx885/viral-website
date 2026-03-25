@@ -3,96 +3,48 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Web3 3D Pro Site</title>
+<title>3D Pro Website</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial;
-  background: linear-gradient(135deg, #0f172a, #1e3a8a, #9333ea);
+  background: linear-gradient(135deg, #0f172a, #9333ea);
   color: white;
-  overflow-x: hidden;
 }
 
-/* NAVBAR */
 .navbar {
   position: fixed;
   width: 100%;
   padding: 15px;
   text-align: center;
   background: rgba(0,0,0,0.6);
-  z-index: 100;
 }
 .navbar a {
   color: white;
-  margin: 15px;
+  margin: 10px;
   text-decoration: none;
-  font-weight: bold;
 }
 
-/* HERO */
-.hero {
+.section {
   height: 100vh;
   display: flex;
-  flex-direction: column;
   justify-content: center;
   align-items: center;
-}
-.hero h1 {
-  font-size: 2.8em;
-}
-
-/* BUTTON */
-.btn {
-  padding: 12px 25px;
-  margin-top: 15px;
-  background: #22c55e;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-}
-
-/* SECTIONS */
-.section {
-  padding: 100px 20px;
+  flex-direction: column;
   text-align: center;
 }
 
-.grid {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.card {
-  width: 260px;
-  margin: 15px;
-  padding: 20px;
-  border-radius: 15px;
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  cursor: pointer;
-  transition: 0.3s;
-}
-.card:hover {
-  transform: scale(1.05);
-}
-
-/* CONTACT FORM */
-input, textarea {
-  width: 80%;
-  padding: 10px;
-  margin: 10px;
-  border-radius: 8px;
+.btn {
+  padding: 10px 20px;
+  background: #22c55e;
   border: none;
+  border-radius: 8px;
 }
 
-/* CANVAS */
+/* canvas fix */
 canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
+  display: block;
 }
 </style>
 </head>
@@ -101,45 +53,19 @@ canvas {
 
 <div class="navbar">
   <a href="#home">Home</a>
-  <a href="#services">Services</a>
-  <a href="#portfolio">Portfolio</a>
   <a href="#contact">Contact</a>
 </div>
 
-<div id="home" class="hero">
-  <h1>3D Web Designer 🚀</h1>
-  <p>I build futuristic websites</p>
-  <button class="btn" onclick="scrollToSection('services')">View Services</button>
-</div>
-
-<div id="services" class="section">
-  <h2>Services</h2>
-  <div class="grid">
-    <div class="card">🌐 Website Design</div>
-    <div class="card">🎮 3D Web Experience</div>
-    <div class="card">📱 Mobile Optimization</div>
-  </div>
-</div>
-
-<div id="portfolio" class="section">
-  <h2>Portfolio</h2>
-  <div class="grid">
-    <div class="card" onclick="openProject()">Project 1</div>
-    <div class="card" onclick="openProject()">Project 2</div>
-    <div class="card" onclick="openProject()">Project 3</div>
-  </div>
+<div id="home" class="section">
+  <h1>3D Website 🚀</h1>
+  <button class="btn" onclick="contact()">Hire Me</button>
 </div>
 
 <div id="contact" class="section">
-  <h2>Contact Me</h2>
-
-  <input type="text" placeholder="Your Name">
-  <input type="text" placeholder="Your Message">
-  <br>
-  <button class="btn" onclick="contact()">Send via WhatsApp</button>
+  <h1>Contact</h1>
 </div>
 
-<!-- THREE JS -->
+<!-- THREE -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
 
@@ -153,79 +79,59 @@ let camera = new THREE.PerspectiveCamera(
   1000
 );
 
-let renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-
+let renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// LIGHTS
+camera.position.z = 3;
+
+// LIGHT
 let light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(5,5,5);
 scene.add(light);
 
-scene.add(new THREE.AmbientLight(0x404040));
-
-camera.position.z = 3;
-
-// LOAD MODEL
+// TRY LOAD MODEL
 let loader = new THREE.GLTFLoader();
 let model;
 
 loader.load(
-  "https://modelviewer.dev/shared-assets/models/RobotExpressive.glb",
+  "https://threejs.org/examples/models/gltf/DamagedHelmet/glTF/DamagedHelmet.gltf",
   function(gltf) {
     model = gltf.scene;
     scene.add(model);
-    model.scale.set(1.5,1.5,1.5);
+  },
+  undefined,
+  function(error) {
+    console.log("Model failed, using fallback");
+
+    // fallback cube
+    let geo = new THREE.BoxGeometry();
+    let mat = new THREE.MeshStandardMaterial({ color: 0x00ffcc });
+    model = new THREE.Mesh(geo, mat);
+    scene.add(model);
   }
 );
-
-// INTERACTION
-document.addEventListener("mousemove", (e) => {
-  if (model) {
-    model.rotation.y = e.clientX * 0.002;
-  }
-});
-
-// TOUCH SUPPORT
-document.addEventListener("touchmove", (e) => {
-  if (model) {
-    let t = e.touches[0];
-    model.rotation.y = t.clientX * 0.002;
-  }
-});
-
-// RESPONSIVE FIX (IMPORTANT)
-window.addEventListener("resize", () => {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-});
 
 // ANIMATION
 function animate() {
   requestAnimationFrame(animate);
 
   if (model) {
-    model.rotation.y += 0.003;
-    model.position.y = Math.sin(Date.now()*0.002) * 0.1;
+    model.rotation.y += 0.01;
   }
 
   renderer.render(scene, camera);
 }
 animate();
 
-// NAVIGATION
-function scrollToSection(id) {
-  document.getElementById(id).scrollIntoView({ behavior: "smooth" });
-}
+// RESPONSIVE FIX
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
 
-// PORTFOLIO CLICK
-function openProject() {
-  alert("Project preview coming soon!");
-}
-
-// CONTACT (WHATSAPP)
+// CONTACT
 function contact() {
   window.location.href = "https://wa.me/639XXXXXXXXX";
 }
