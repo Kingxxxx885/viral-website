@@ -3,152 +3,180 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Infinite Neon Fireworks</title>
+    <title>3D Neon New Year</title>
     <style>
         :root {
-            --fw-color-1: #00f2ff; /* Cyan */
-            --fw-color-2: #ff00c1; /* Pink */
-            --fw-color-3: #39ff14; /* Green */
-            --fw-color-4: #fff01f; /* Yellow */
-            --bg-color: #020617;
+            --neon-cyan: #00f2ff;
+            --neon-pink: #ff00c1;
+            --neon-gold: #ffcc00;
+            --bg-dark: #020617;
         }
 
         body {
             margin: 0;
             height: 100vh;
-            background: var(--bg-color);
+            background: var(--bg-dark);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             overflow: hidden;
             perspective: 1200px;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Arial Black', Gadget, sans-serif;
         }
 
-        /* 3D SCENE CONTAINER */
-        .scene {
-            width: 300px;
-            height: 300px;
-            position: relative;
+        /* --- GLOWING TEXT --- */
+        .title-container {
+            position: absolute;
+            z-index: 100;
+            text-align: center;
+            pointer-events: none;
             transform-style: preserve-3d;
-            transition: transform 0.1s ease-out;
+            animation: floatText 4s ease-in-out infinite;
         }
 
-        /* FIREWORK PARENT */
+        h1 {
+            font-size: 4rem;
+            margin: 0;
+            text-transform: uppercase;
+            color: #fff;
+            /* Infinite Blinking & Glowing Effect */
+            text-shadow: 
+                0 0 10px #fff,
+                0 0 20px var(--neon-cyan),
+                0 0 40px var(--neon-pink),
+                0 0 80px var(--neon-cyan);
+            animation: neonBlink 1.5s infinite alternate;
+        }
+
+        @keyframes neonBlink {
+            0% { opacity: 0.8; filter: brightness(1); transform: scale(1); }
+            100% { opacity: 1; filter: brightness(1.8); transform: scale(1.05); }
+        }
+
+        @keyframes floatText {
+            0%, 100% { transform: translateZ(50px) translateY(0); }
+            50% { transform: translateZ(100px) translateY(-20px); }
+        }
+
+        /* --- 3D SCENE --- */
+        .scene {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            transform-style: preserve-3d;
+        }
+
         .firework {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 0;
-            height: 0;
+            width: 0; height: 0;
             transform-style: preserve-3d;
             animation: burst 4s infinite linear;
         }
 
-        /* Create 4 distinct fireworks in different positions & times */
-        .fw-1 { --r: 0deg; --x: -100px; --y: -50px; --color: var(--fw-color-1); animation-delay: 0s; }
-        .fw-2 { --r: 90deg; --x: 100px; --y: 50px; --color: var(--fw-color-2); animation-delay: 1s; }
-        .fw-3 { --r: 180deg; --x: -50px; --y: 100px; --color: var(--fw-color-3); animation-delay: 2s; }
-        .fw-4 { --r: 270deg; --x: 50px; --y: -100px; --color: var(--fw-color-4); animation-delay: 3s; }
-
         @keyframes burst {
-            0% { transform: translate3d(var(--x), var(--y), -1000px) scale(0); opacity: 0; }
+            0% { transform: translate3d(var(--x), var(--y), -800px) scale(0); opacity: 0; }
             10% { opacity: 1; }
-            50% { transform: translate3d(var(--x), var(--y), 0) scale(1.5); }
-            100% { transform: translate3d(var(--x), var(--y), 500px) scale(2); opacity: 0; }
+            45% { transform: translate3d(var(--x), var(--y), 0) scale(1.2); }
+            100% { transform: translate3d(var(--x), var(--y), 400px) scale(1.5); opacity: 0; }
         }
 
-        /* FIREWORK SPARKS */
         .spark {
             position: absolute;
-            width: 4px;
-            height: 4px;
+            width: 4px; height: 4px;
             border-radius: 50%;
             background: var(--color);
             box-shadow: 0 0 10px var(--color), 0 0 20px #fff;
             animation: spark-fade 4s infinite linear;
-            animation-delay: inherit;
         }
 
         @keyframes spark-fade {
-            0%, 50% { opacity: 1; transform: scale(1) translate3d(0, 0, 0); }
-            100% { opacity: 0; transform: scale(0) translate3d(var(--dx), var(--dy), var(--dz)); }
+            0%, 40% { opacity: 1; transform: translate3d(0,0,0); }
+            100% { opacity: 0; transform: translate3d(var(--dx), var(--dy), var(--dz)); }
         }
 
-        /* UI TEXT */
-        .label {
+        .hint {
             position: absolute;
-            bottom: 50px;
-            color: white;
-            text-align: center;
-            letter-spacing: 5px;
-            font-size: 1.2rem;
-            text-shadow: 0 0 10px white;
-            z-index: 10;
+            bottom: 20px;
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+            letter-spacing: 2px;
         }
     </style>
 </head>
 <body>
 
-    <div class="scene" id="scene">
-        <div class="firework fw-1" id="fw1"></div>
-        <div class="firework fw-2" id="fw2"></div>
-        <div class="firework fw-3" id="fw3"></div>
-        <div class="firework fw-4" id="fw4"></div>
+    <div class="title-container">
+        <h1>Happy New Year</h1>
     </div>
 
-    <div class="label">INFINITY PROTOCOL: FIREWORKS</div>
+    <div class="scene" id="scene"></div>
+
+    <p class="hint">TAP TO LAUNCH FIREWORKS</p>
 
     <script>
         const scene = document.getElementById('scene');
+        const colors = ['#00f2ff', '#ff00c1', '#39ff14', '#ffcc00', '#ff4d4d'];
 
-        // Create 30 sparks for each firework burst
-        function createSparks(fwId) {
-            const fw = document.getElementById(fwId);
-            for (let i = 0; i < 30; i++) {
+        // Function to create a firework
+        function createFirework(xPos, yPos, isManual = false) {
+            const fw = document.createElement('div');
+            fw.className = 'firework';
+            
+            // Random or specific position
+            const x = xPos || (Math.random() * window.innerWidth - window.innerWidth / 2);
+            const y = yPos || (Math.random() * window.innerHeight - window.innerHeight / 2);
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            fw.style.setProperty('--x', `${x}px`);
+            fw.style.setProperty('--y', `${y}px`);
+            fw.style.setProperty('--color', color);
+
+            // Generate 40 sparks
+            for (let i = 0; i < 40; i++) {
                 const spark = document.createElement('div');
                 spark.className = 'spark';
                 
-                // Random 3D direction for each spark
-                const angle = Math.random() * Math.PI * 2; // Full circle
-                const elevation = (Math.random() - 0.5) * Math.PI; // Up/Down
+                const angle = Math.random() * Math.PI * 2;
+                const elevation = (Math.random() - 0.5) * Math.PI;
+                const dist = 100 + Math.random() * 150;
 
-                // Random burst distance
-                const distance = 150 + Math.random() * 100;
+                const dx = Math.cos(angle) * Math.cos(elevation) * dist;
+                const dy = Math.sin(angle) * Math.cos(elevation) * dist;
+                const dz = Math.sin(elevation) * dist;
 
-                // Calculate X, Y, Z translation
-                const dx = Math.cos(angle) * Math.cos(elevation) * distance;
-                const dy = Math.sin(angle) * Math.cos(elevation) * distance;
-                const dz = Math.sin(elevation) * distance;
-
-                // Set as CSS variables
                 spark.style.setProperty('--dx', `${dx}px`);
                 spark.style.setProperty('--dy', `${dy}px`);
                 spark.style.setProperty('--dz', `${dz}px`);
-
+                
                 fw.appendChild(spark);
+            }
+
+            scene.appendChild(fw);
+
+            // Remove manual fireworks after animation
+            if (isManual) {
+                setTimeout(() => fw.remove(), 4000);
             }
         }
 
-        // Initialize sparks for all 4 fireworks
-        createSparks('fw1');
-        createSparks('fw2');
-        createSparks('fw3');
-        createSparks('fw4');
+        // Auto-launch 5 background fireworks
+        for(let i=0; i<5; i++) {
+            setTimeout(() => createFirework(), i * 800);
+        }
 
-        // Movable interaction
-        document.addEventListener('mousemove', (e) => {
-            const x = (window.innerWidth / 2 - e.pageX) / 20;
-            const y = (window.innerHeight / 2 - e.pageY) / 20;
-            scene.style.transform = `rotateY(${-x}deg) rotateX(${y}deg)`;
+        // Manual Launch on Click/Tap
+        document.addEventListener('mousedown', (e) => {
+            const x = e.clientX - window.innerWidth / 2;
+            const y = e.clientY - window.innerHeight / 2;
+            createFirework(x, y, true);
         });
 
-        // Mobile touch interaction
-        document.addEventListener('touchmove', (e) => {
-            const touch = e.touches[0];
-            const x = (window.innerWidth / 2 - touch.pageX) / 10;
-            const y = (window.innerHeight / 2 - touch.pageY) / 10;
-            scene.style.transform = `rotateY(${-x}deg) rotateX(${y}deg)`;
+        // 3D Rotation with Mouse
+        document.addEventListener('mousemove', (e) => {
+            const xRot = (window.innerHeight / 2 - e.pageY) / 25;
+            const yRot = (e.pageX - window.innerWidth / 2) / 25;
+            scene.style.transform = `rotateX(${xRot}deg) rotateY(${yRot}deg)`;
         });
     </script>
 </body>
