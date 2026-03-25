@@ -3,15 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Viral Website Pro</title>
+<title>3D NFT Website</title>
 
 <style>
 body {
   margin: 0;
+  overflow-x: hidden;
   font-family: Arial, sans-serif;
-  background: #0f172a;
+  background: black;
   color: white;
-  scroll-behavior: smooth;
 }
 
 /* NAVBAR */
@@ -19,107 +19,126 @@ body {
   position: fixed;
   width: 100%;
   top: 0;
-  background: rgba(0,0,0,0.7);
   padding: 15px;
   text-align: center;
+  background: rgba(0,0,0,0.6);
+  z-index: 10;
 }
 .navbar a {
   color: white;
   margin: 0 15px;
   text-decoration: none;
-  font-weight: bold;
 }
 
 /* HERO */
 .hero {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
   text-align: center;
-  padding: 120px 20px;
-  background: linear-gradient(135deg, #3b82f6, #9333ea);
 }
+
+canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+}
+
+/* BUTTON */
 .btn {
   padding: 12px 25px;
-  background: #22c55e;
+  background: #00ffcc;
   border: none;
   border-radius: 8px;
-  color: white;
   cursor: pointer;
+  margin-top: 20px;
 }
 
-/* SECTIONS */
+/* SECTION */
 .section {
-  padding: 80px 20px;
+  padding: 100px 20px;
   text-align: center;
-}
-.card {
-  background: rgba(255,255,255,0.05);
-  margin: 10px;
-  padding: 20px;
-  border-radius: 15px;
-  display: inline-block;
-  width: 250px;
-}
-
-/* FOOTER */
-.footer {
-  padding: 20px;
-  text-align: center;
-  background: #020617;
 }
 </style>
 </head>
 
 <body>
 
-<!-- NAVBAR -->
 <div class="navbar">
   <a href="#home">Home</a>
   <a href="#features">Features</a>
-  <a href="#pricing">Pricing</a>
   <a href="#contact">Contact</a>
 </div>
 
-<!-- HERO -->
 <div id="home" class="hero">
-  <h1>Build Something Viral 🚀</h1>
-  <p>Create modern websites that convert and trend.</p>
-  <button class="btn" onclick="scrollToSection('pricing')">Get Started</button>
+  <h1>3D NFT Experience 🚀</h1>
+  <p>Interactive futuristic website</p>
+  <button class="btn" onclick="alert('Welcome!')">Enter</button>
 </div>
 
-<!-- FEATURES -->
 <div id="features" class="section">
   <h2>Features</h2>
-  <div class="card">⚡ Fast Performance</div>
-  <div class="card">🎨 Modern UI</div>
-  <div class="card">📱 Mobile Ready</div>
+  <p>🔥 3D Interactive Character</p>
+  <p>⚡ Smooth UI</p>
+  <p>📱 Mobile Ready</p>
 </div>
 
-<!-- PRICING -->
-<div id="pricing" class="section">
-  <h2>Pricing</h2>
-  <div class="card">Basic - $10</div>
-  <div class="card">Pro - $25</div>
-  <div class="card">Premium - $50</div>
-</div>
-
-<!-- CONTACT -->
 <div id="contact" class="section">
   <h2>Contact</h2>
-  <p>Click button to contact us</p>
-  <button class="btn" onclick="contact()">Message Us</button>
+  <button class="btn" onclick="contact()">Message Me</button>
 </div>
 
-<!-- FOOTER -->
-<div class="footer">
-  © 2026 Viral Website Pro
-</div>
+<!-- THREE JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <script>
-function scrollToSection(id) {
-  document.getElementById(id).scrollIntoView();
-}
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+let renderer = new THREE.WebGLRenderer({ alpha: true });
 
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+// NFT STYLE OBJECT (GEOMETRIC CHARACTER)
+let geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
+let material = new THREE.MeshStandardMaterial({
+  color: 0x00ffcc,
+  metalness: 0.8,
+  roughness: 0.2
+});
+let nft = new THREE.Mesh(geometry, material);
+scene.add(nft);
+
+// LIGHT
+let light = new THREE.PointLight(0xffffff, 1);
+light.position.set(5,5,5);
+scene.add(light);
+
+camera.position.z = 4;
+
+// MOUSE MOVE INTERACTION
+document.addEventListener("mousemove", (event) => {
+  let x = (event.clientX / window.innerWidth) * 2 - 1;
+  let y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  nft.rotation.x = y;
+  nft.rotation.y = x;
+});
+
+// ANIMATION
+function animate() {
+  requestAnimationFrame(animate);
+  nft.rotation.z += 0.01;
+  renderer.render(scene, camera);
+}
+animate();
+
+// CONTACT BUTTON
 function contact() {
-  alert("Contact feature coming soon!");
+  window.location.href = "https://wa.me/";
 }
 </script>
 
