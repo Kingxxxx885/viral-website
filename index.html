@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D Humanoid Web3 Site</title>
+<title>Web3 3D Pro Site</title>
 
 <style>
 body {
@@ -20,8 +20,8 @@ body {
   width: 100%;
   padding: 15px;
   text-align: center;
-  background: rgba(0,0,0,0.5);
-  z-index: 10;
+  background: rgba(0,0,0,0.6);
+  z-index: 100;
 }
 .navbar a {
   color: white;
@@ -39,9 +39,10 @@ body {
   align-items: center;
 }
 .hero h1 {
-  font-size: 2.5em;
+  font-size: 2.8em;
 }
 
+/* BUTTON */
 .btn {
   padding: 12px 25px;
   margin-top: 15px;
@@ -57,8 +58,13 @@ body {
   text-align: center;
 }
 
+.grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .card {
-  display: inline-block;
   width: 260px;
   margin: 15px;
   padding: 20px;
@@ -70,6 +76,15 @@ body {
 }
 .card:hover {
   transform: scale(1.05);
+}
+
+/* CONTACT FORM */
+input, textarea {
+  width: 80%;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 8px;
+  border: none;
 }
 
 /* CANVAS */
@@ -84,45 +99,44 @@ canvas {
 
 <body>
 
-<!-- NAV -->
 <div class="navbar">
   <a href="#home">Home</a>
-  <a href="#features">Features</a>
-  <a href="#nft">NFT</a>
+  <a href="#services">Services</a>
+  <a href="#portfolio">Portfolio</a>
   <a href="#contact">Contact</a>
 </div>
 
-<!-- HERO -->
 <div id="home" class="hero">
-  <h1>Humanoid 3D Experience 🤖</h1>
-  <p>Futuristic Web3 Website</p>
-  <button class="btn" onclick="scrollToSection('features')">Explore</button>
+  <h1>3D Web Designer 🚀</h1>
+  <p>I build futuristic websites</p>
+  <button class="btn" onclick="scrollToSection('services')">View Services</button>
 </div>
 
-<!-- FEATURES -->
-<div id="features" class="section">
-  <h2>Features</h2>
-
-  <div class="card" onclick="alert('Fast Performance')">⚡ Fast</div>
-  <div class="card" onclick="alert('3D Experience')">🎮 3D UI</div>
-  <div class="card" onclick="alert('Mobile Ready')">📱 Mobile</div>
-
+<div id="services" class="section">
+  <h2>Services</h2>
+  <div class="grid">
+    <div class="card">🌐 Website Design</div>
+    <div class="card">🎮 3D Web Experience</div>
+    <div class="card">📱 Mobile Optimization</div>
+  </div>
 </div>
 
-<!-- NFT SECTION -->
-<div id="nft" class="section">
-  <h2>Our NFT Collection</h2>
-
-  <div class="card" onclick="alert('NFT #1')">🧍 NFT Alpha</div>
-  <div class="card" onclick="alert('NFT #2')">🧍 NFT Beta</div>
-  <div class="card" onclick="alert('NFT #3')">🧍 NFT Gamma</div>
-
+<div id="portfolio" class="section">
+  <h2>Portfolio</h2>
+  <div class="grid">
+    <div class="card" onclick="openProject()">Project 1</div>
+    <div class="card" onclick="openProject()">Project 2</div>
+    <div class="card" onclick="openProject()">Project 3</div>
+  </div>
 </div>
 
-<!-- CONTACT -->
 <div id="contact" class="section">
   <h2>Contact Me</h2>
-  <button class="btn" onclick="contact()">Hire Me</button>
+
+  <input type="text" placeholder="Your Name">
+  <input type="text" placeholder="Your Message">
+  <br>
+  <button class="btn" onclick="contact()">Send via WhatsApp</button>
 </div>
 
 <!-- THREE JS -->
@@ -131,9 +145,16 @@ canvas {
 
 <script>
 let scene = new THREE.Scene();
-let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
 
-let renderer = new THREE.WebGLRenderer({ alpha: true });
+let camera = new THREE.PerspectiveCamera(
+  75,
+  window.innerWidth / window.innerHeight,
+  0.1,
+  1000
+);
+
+let renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
@@ -146,7 +167,7 @@ scene.add(new THREE.AmbientLight(0x404040));
 
 camera.position.z = 3;
 
-// LOAD HUMANOID MODEL
+// LOAD MODEL
 let loader = new THREE.GLTFLoader();
 let model;
 
@@ -163,20 +184,25 @@ loader.load(
 document.addEventListener("mousemove", (e) => {
   if (model) {
     model.rotation.y = e.clientX * 0.002;
-    model.rotation.x = e.clientY * 0.002;
   }
 });
 
-// MOBILE TOUCH
+// TOUCH SUPPORT
 document.addEventListener("touchmove", (e) => {
   if (model) {
     let t = e.touches[0];
     model.rotation.y = t.clientX * 0.002;
-    model.rotation.x = t.clientY * 0.002;
   }
 });
 
-// ANIMATION LOOP
+// RESPONSIVE FIX (IMPORTANT)
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// ANIMATION
 function animate() {
   requestAnimationFrame(animate);
 
@@ -189,12 +215,17 @@ function animate() {
 }
 animate();
 
-// SCROLL FUNCTION
+// NAVIGATION
 function scrollToSection(id) {
   document.getElementById(id).scrollIntoView({ behavior: "smooth" });
 }
 
-// CONTACT
+// PORTFOLIO CLICK
+function openProject() {
+  alert("Project preview coming soon!");
+}
+
+// CONTACT (WHATSAPP)
 function contact() {
   window.location.href = "https://wa.me/639XXXXXXXXX";
 }
