@@ -3,64 +3,47 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D NFT Website</title>
+<title>Ultra 3D NFT Website</title>
 
 <style>
 body {
   margin: 0;
-  overflow-x: hidden;
-  font-family: Arial, sans-serif;
+  overflow: hidden;
   background: black;
+  font-family: Arial;
   color: white;
 }
 
-/* NAVBAR */
 .navbar {
   position: fixed;
   width: 100%;
   top: 0;
-  padding: 15px;
   text-align: center;
+  padding: 15px;
   background: rgba(0,0,0,0.6);
   z-index: 10;
 }
+
 .navbar a {
   color: white;
-  margin: 0 15px;
+  margin: 10px;
   text-decoration: none;
 }
 
-/* HERO */
 .hero {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
+  position: absolute;
+  top: 40%;
+  width: 100%;
   text-align: center;
+  z-index: 5;
 }
 
-canvas {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: -1;
-}
-
-/* BUTTON */
 .btn {
   padding: 12px 25px;
   background: #00ffcc;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   cursor: pointer;
-  margin-top: 20px;
-}
-
-/* SECTION */
-.section {
-  padding: 100px 20px;
-  text-align: center;
 }
 </style>
 </head>
@@ -68,77 +51,89 @@ canvas {
 <body>
 
 <div class="navbar">
-  <a href="#home">Home</a>
-  <a href="#features">Features</a>
-  <a href="#contact">Contact</a>
+  <a href="#">Home</a>
+  <a href="#">NFT</a>
+  <a href="#">Contact</a>
 </div>
 
-<div id="home" class="hero">
-  <h1>3D NFT Experience 🚀</h1>
-  <p>Interactive futuristic website</p>
-  <button class="btn" onclick="alert('Welcome!')">Enter</button>
+<div class="hero">
+  <h1>Ultra 3D NFT Experience 🚀</h1>
+  <button class="btn" onclick="contact()">Hire Me</button>
 </div>
 
-<div id="features" class="section">
-  <h2>Features</h2>
-  <p>🔥 3D Interactive Character</p>
-  <p>⚡ Smooth UI</p>
-  <p>📱 Mobile Ready</p>
-</div>
-
-<div id="contact" class="section">
-  <h2>Contact</h2>
-  <button class="btn" onclick="contact()">Message Me</button>
-</div>
-
-<!-- THREE JS -->
+<!-- THREE JS + LOADER -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128/examples/js/loaders/GLTFLoader.js"></script>
 
 <script>
 let scene = new THREE.Scene();
 let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-let renderer = new THREE.WebGLRenderer({ alpha: true });
+let renderer = new THREE.WebGLRenderer({ antialias: true });
 
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// NFT STYLE OBJECT (GEOMETRIC CHARACTER)
-let geometry = new THREE.TorusKnotGeometry(1, 0.3, 100, 16);
-let material = new THREE.MeshStandardMaterial({
-  color: 0x00ffcc,
-  metalness: 0.8,
-  roughness: 0.2
+// LIGHTS
+let light1 = new THREE.DirectionalLight(0xffffff, 1);
+light1.position.set(5,5,5);
+scene.add(light1);
+
+let light2 = new THREE.AmbientLight(0x404040);
+scene.add(light2);
+
+camera.position.z = 3;
+
+// LOAD 3D MODEL (FREE CDN MODEL)
+let loader = new THREE.GLTFLoader();
+let model;
+
+loader.load(
+  "https://modelviewer.dev/shared-assets/models/Astronaut.glb",
+  function(gltf) {
+    model = gltf.scene;
+    scene.add(model);
+    model.scale.set(1.5,1.5,1.5);
+  }
+);
+
+// TOUCH / DRAG ROTATION
+let isDragging = false;
+
+document.addEventListener("mousedown", () => isDragging = true);
+document.addEventListener("mouseup", () => isDragging = false);
+
+document.addEventListener("mousemove", (e) => {
+  if (isDragging && model) {
+    model.rotation.y += e.movementX * 0.01;
+    model.rotation.x += e.movementY * 0.01;
+  }
 });
-let nft = new THREE.Mesh(geometry, material);
-scene.add(nft);
 
-// LIGHT
-let light = new THREE.PointLight(0xffffff, 1);
-light.position.set(5,5,5);
-scene.add(light);
-
-camera.position.z = 4;
-
-// MOUSE MOVE INTERACTION
-document.addEventListener("mousemove", (event) => {
-  let x = (event.clientX / window.innerWidth) * 2 - 1;
-  let y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-  nft.rotation.x = y;
-  nft.rotation.y = x;
+// MOBILE TOUCH
+document.addEventListener("touchmove", (e) => {
+  if (model) {
+    let touch = e.touches[0];
+    model.rotation.y += touch.clientX * 0.00005;
+    model.rotation.x += touch.clientY * 0.00005;
+  }
 });
 
-// ANIMATION
+// ANIMATION LOOP
 function animate() {
   requestAnimationFrame(animate);
-  nft.rotation.z += 0.01;
+
+  if (model) {
+    model.rotation.y += 0.002; // idle animation
+    model.position.y = Math.sin(Date.now() * 0.002) * 0.1; // floating
+  }
+
   renderer.render(scene, camera);
 }
 animate();
 
-// CONTACT BUTTON
+// CONTACT
 function contact() {
-  window.location.href = "https://wa.me/";
+  window.location.href = "https://wa.me/639XXXXXXXXX";
 }
 </script>
 
