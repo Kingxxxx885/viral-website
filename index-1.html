@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Universe — King</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --void: #01010a;
+      --deep: #060614;
+      --accent: #00f5d4;
+      --glow: #7b2fff;
+      --ember: #ff4f00;
+      --text: #e8e8f0;
+      --muted: #5a5a7a;
+    }
+
+    html, body {
+      width: 100%; height: 100%;
+      background: var(--void);
+      color: var(--text);
+      font-family: 'DM Sans', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* ── canvas ── */
+    #bg {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+    }
+
+    /* ── noise grain overlay ── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+      background-size: 200px 200px;
+      opacity: 0.35;
+    }
+
+    /* ── cursor ── */
+    .cursor {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: var(--accent);
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      mix-blend-mode: screen;
+      transition: transform 0.1s ease, background 0.3s;
+      box-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent);
+    }
+    .cursor-ring {
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(0,245,212,0.4);
+      position: fixed;
+      top: 0; left: 0;
+      pointer-events: none;
+      z-index: 9998;
+      transition: transform 0.25s ease, width 0.2s, height 0.2s, opacity 0.2s;
+    }
+
+    /* ── wrapper ── */
+    .wrapper {
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ── nav ── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 52px;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      text-shadow: 0 0 24px rgba(0,245,212,0.6);
+    }
+    .nav-links {
+      display: flex;
+      gap: 40px;
+      list-style: none;
+    }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 13px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .nav-links a:hover { color: var(--text); }
+
+    /* ── hero ── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 52px;
+      position: relative;
+    }
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 24px;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.3s forwards;
+    }
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(80px, 13vw, 180px);
+      line-height: 0.9;
+      letter-spacing: -2px;
+      max-width: 900px;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.5s forwards;
+    }
+    .hero-title span {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(0,245,212,0.5);
+    }
+    .hero-sub {
+      margin-top: 36px;
+      font-size: 16px;
+      line-height: 1.7;
+      color: var(--muted);
+      max-width: 420px;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.7s forwards;
+    }
+    .hero-cta {
+      margin-top: 52px;
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.9s forwards;
+    }
+    .btn {
+      padding: 14px 36px;
+      border-radius: 2px;
+      font-size: 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      cursor: pointer;
+      border: none;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: var(--void);
+      font-weight: 600;
+      box-shadow: 0 0 30px rgba(0,245,212,0.35);
+    }
+    .btn-primary:hover {
+      box-shadow: 0 0 60px rgba(0,245,212,0.6);
+      transform: translateY(-2px);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .btn-ghost:hover {
+      border-color: rgba(255,255,255,0.4);
+      transform: translateY(-2px);
+    }
+
+    /* scroll badge */
+    .scroll-hint {
+      position: absolute;
+      bottom: 48px;
+      left: 52px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      opacity: 0;
+      animation: fadeUp 1s 1.2s forwards;
+    }
+    .scroll-line {
+      width: 48px;
+      height: 1px;
+      background: var(--muted);
+      position: relative;
+      overflow: hidden;
+    }
+    .scroll-line::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 100%; height: 100%;
+      background: var(--accent);
+      animation: lineSlide 2s 1.5s ease-in-out infinite;
+    }
+    @keyframes lineSlide {
+      0%   { left: -100%; }
+      50%  { left: 0; }
+      100% { left: 100%; }
+    }
+    .scroll-label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── stats strip ── */
+    .stats {
+      padding: 80px 52px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: rgba(255,255,255,0.05);
+    }
+    .stat-card {
+      background: var(--deep);
+      padding: 48px 40px;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s, transform 0.6s;
+    }
+    .stat-card.visible { opacity: 1; transform: translateY(0); }
+    .stat-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 72px;
+      color: var(--accent);
+      line-height: 1;
+      text-shadow: 0 0 40px rgba(0,245,212,0.3);
+    }
+    .stat-label {
+      font-size: 11px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    /* ── features ── */
+    .features {
+      padding: 140px 52px;
+    }
+    .section-tag {
+      font-size: 10px;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: var(--glow);
+      margin-bottom: 16px;
+    }
+    .section-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(42px, 6vw, 80px);
+      line-height: 1;
+      margin-bottom: 80px;
+      max-width: 600px;
+    }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2px;
+    }
+    .feat-card {
+      background: var(--deep);
+      padding: 48px 36px;
+      border: 1px solid rgba(255,255,255,0.04);
+      position: relative;
+      overflow: hidden;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.6s, transform 0.6s, border-color 0.3s;
+      cursor: default;
+    }
+    .feat-card.visible { opacity: 1; transform: translateY(0); }
+    .feat-card:hover { border-color: rgba(0,245,212,0.2); }
+    .feat-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 0%, rgba(0,245,212,0.06), transparent 60%);
+      opacity: 0;
+      transition: opacity 0.4s;
+    }
+    .feat-card:hover::before { opacity: 1; }
+    .feat-icon {
+      width: 48px; height: 48px;
+      border-radius: 4px;
+      background: rgba(0,245,212,0.08);
+      border: 1px solid rgba(0,245,212,0.15);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      margin-bottom: 28px;
+    }
+    .feat-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 1px;
+      margin-bottom: 14px;
+    }
+    .feat-desc {
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--muted);
+    }
+
+    /* ── marquee ── */
+    .marquee-wrap {
+      padding: 40px 0;
+      overflow: hidden;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .marquee-track {
+      display: flex;
+      gap: 60px;
+      width: max-content;
+      animation: marqueeScroll 18s linear infinite;
+    }
+    @keyframes marqueeScroll {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .marquee-item {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      letter-spacing: 4px;
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.12);
+      white-space: nowrap;
+      transition: color 0.3s, -webkit-text-stroke 0.3s;
+    }
+    .marquee-item:hover {
+      color: var(--accent);
+      -webkit-text-stroke: 1px var(--accent);
+    }
+    .marquee-sep {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 48px;
+      color: var(--ember);
+      opacity: 0.6;
+    }
+
+    /* ── footer ── */
+    footer {
+      padding: 60px 52px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      letter-spacing: 4px;
+      color: var(--muted);
+    }
+    .footer-copy {
+      font-size: 12px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    /* ── shared animations ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── responsive ── */
+    @media (max-width: 640px) {
+      nav { padding: 20px 24px; }
+      .nav-links { display: none; }
+      .hero, .features { padding-left: 24px; padding-right: 24px; }
+      .stats { padding: 40px 24px; }
+      footer { padding: 40px 24px; }
+      .scroll-hint { left: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Custom cursor -->
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<!-- Three.js canvas -->
+<canvas id="bg"></canvas>
+
+<div class="wrapper">
+
+  <!-- NAV -->
+  <nav>
+    <div class="logo">KING∙DEV</div>
+    <ul class="nav-links">
+      <li><a href="#">Work</a></li>
+      <li><a href="#">Studio</a></li>
+      <li><a href="#">Lab</a></li>
+      <li><a href="#">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <p class="hero-eyebrow">// 3D Interactive Experience</p>
+    <h1 class="hero-title">
+      BUILD<br>
+      THE <span>FUTURE</span>
+    </h1>
+    <p class="hero-sub">
+      Automation workflows, immersive interfaces, and digital systems
+      engineered for the next generation of the web.
+    </p>
+    <div class="hero-cta">
+      <a href="#" class="btn btn-primary">Explore Work</a>
+      <a href="#" class="btn btn-ghost">Read More</a>
+    </div>
+    <div class="scroll-hint">
+      <div class="scroll-line"></div>
+      <span class="scroll-label">Scroll to discover</span>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <section class="stats">
+    <div class="stat-card">
+      <div class="stat-num" data-count="120">0</div>
+      <div class="stat-label">Workflows Built</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" data-count="48">0</div>
+      <div class="stat-label">Automation Integrations</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" data-count="99">0</div>
+      <div class="stat-label">Uptime %</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" data-count="7">0</div>
+      <div class="stat-label">Years Experience</div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section class="features">
+    <p class="section-tag">// Core Capabilities</p>
+    <h2 class="section-title">WHAT I BUILD</h2>
+    <div class="features-grid">
+      <div class="feat-card">
+        <div class="feat-icon">⚡</div>
+        <div class="feat-title">N8N Automation</div>
+        <p class="feat-desc">Complex multi-step workflows connecting APIs, databases, and third-party services with zero code overhead.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🌐</div>
+        <div class="feat-title">3D Web</div>
+        <p class="feat-desc">Immersive Three.js scenes, shader programming, and GPU-accelerated animations baked into the browser.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🤖</div>
+        <div class="feat-title">AI Integration</div>
+        <p class="feat-desc">GPT-4o, Claude API, and open models wired into production systems — chatbots, content pipelines, data extraction.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🗄️</div>
+        <div class="feat-title">Supabase Backend</div>
+        <p class="feat-desc">Postgres-powered data layers with real-time subscriptions, auth, edge functions, and storage baked in.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📡</div>
+        <div class="feat-title">Telegram Bots</div>
+        <p class="feat-desc">Event-driven bots for alerts, crypto prices, team notifications, and automated content broadcasting.</p>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🚀</div>
+        <div class="feat-title">Render Deploy</div>
+        <p class="feat-desc">Free-tier optimised cloud deployments keeping projects live and scalable without burning budget.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- MARQUEE -->
+  <div class="marquee-wrap">
+    <div class="marquee-track" id="marquee">
+      <span class="marquee-item">AUTOMATION</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">THREE.JS</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">SUPABASE</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">N8N</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">AI AGENTS</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">RENDER</span>
+      <span class="marquee-sep">✦</span>
+      <!-- duplicate for seamless loop -->
+      <span class="marquee-item">AUTOMATION</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">THREE.JS</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">SUPABASE</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">N8N</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">AI AGENTS</span>
+      <span class="marquee-sep">✦</span>
+      <span class="marquee-item">RENDER</span>
+      <span class="marquee-sep">✦</span>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">KING∙DEV</div>
+    <p class="footer-copy">© 2026 — Built with Three.js & passion</p>
+  </footer>
+
+</div>
+
+<!-- Three.js from CDN -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ───────────────────────────────────────────────
+   THREE.JS SCENE
+─────────────────────────────────────────────── */
+const canvas  = document.getElementById('bg');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setClearColor(0x01010a, 1);
+
+const scene  = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+camera.position.set(0, 0, 80);
+
+/* ── Fog ── */
+scene.fog = new THREE.FogExp2(0x01010a, 0.007);
+
+/* ── Lights ── */
+const ambientLight = new THREE.AmbientLight(0x111133, 1);
+scene.add(ambientLight);
+
+const pointA = new THREE.PointLight(0x00f5d4, 4, 200);
+pointA.position.set(40, 40, 60);
+scene.add(pointA);
+
+const pointB = new THREE.PointLight(0x7b2fff, 3, 200);
+pointB.position.set(-60, -20, 40);
+scene.add(pointB);
+
+const pointC = new THREE.PointLight(0xff4f00, 2, 150);
+pointC.position.set(0, -60, 30);
+scene.add(pointC);
+
+/* ── Central Toroidal Knot ── */
+const knotGeo = new THREE.TorusKnotGeometry(14, 3.5, 180, 24, 2, 3);
+const knotMat = new THREE.MeshPhongMaterial({
+  color: 0x00f5d4,
+  emissive: 0x001a14,
+  shininess: 120,
+  wireframe: false,
+  transparent: true,
+  opacity: 0.85,
+});
+const knot = new THREE.Mesh(knotGeo, knotMat);
+scene.add(knot);
+
+/* Wireframe overlay */
+const knotWire = new THREE.Mesh(
+  new THREE.TorusKnotGeometry(14, 3.5, 180, 24, 2, 3),
+  new THREE.MeshBasicMaterial({ color: 0x00f5d4, wireframe: true, transparent: true, opacity: 0.08 })
+);
+scene.add(knotWire);
+
+/* ── Floating Icosahedra ── */
+const floaters = [];
+for (let i = 0; i < 26; i++) {
+  const size = Math.random() * 2.5 + 0.6;
+  const geo  = Math.random() > 0.5
+    ? new THREE.IcosahedronGeometry(size, 0)
+    : new THREE.OctahedronGeometry(size, 0);
+  const colors = [0x00f5d4, 0x7b2fff, 0xff4f00, 0x0077ff];
+  const mat = new THREE.MeshPhongMaterial({
+    color: colors[Math.floor(Math.random() * colors.length)],
+    emissive: 0x050520,
+    shininess: 80,
+    transparent: true,
+    opacity: Math.random() * 0.5 + 0.3,
+    wireframe: Math.random() > 0.6,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  const r = Math.random() * 55 + 25;
+  const theta = Math.random() * Math.PI * 2;
+  const phi   = Math.acos(2 * Math.random() - 1);
+  mesh.position.set(
+    r * Math.sin(phi) * Math.cos(theta),
+    r * Math.sin(phi) * Math.sin(theta),
+    r * Math.cos(phi)
+  );
+  mesh.userData = {
+    speedX: (Math.random() - 0.5) * 0.012,
+    speedY: (Math.random() - 0.5) * 0.012,
+    speedZ: (Math.random() - 0.5) * 0.008,
+    floatAmp: Math.random() * 6 + 2,
+    floatOff: Math.random() * Math.PI * 2,
+  };
+  scene.add(mesh);
+  floaters.push(mesh);
+}
+
+/* ── Star Field ── */
+const starCount = 2800;
+const starPositions = new Float32Array(starCount * 3);
+for (let i = 0; i < starCount * 3; i++) starPositions[i] = (Math.random() - 0.5) * 1200;
+const starGeo = new THREE.BufferGeometry();
+starGeo.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+const starMat = new THREE.PointsMaterial({ color: 0xaaaacc, size: 0.55, transparent: true, opacity: 0.7 });
+scene.add(new THREE.Points(starGeo, starMat));
+
+/* ── Particle Ring ── */
+const ringCount = 900;
+const ringPos   = new Float32Array(ringCount * 3);
+for (let i = 0; i < ringCount; i++) {
+  const angle = (i / ringCount) * Math.PI * 2;
+  const r = 32 + (Math.random() - 0.5) * 8;
+  ringPos[i * 3]     = Math.cos(angle) * r;
+  ringPos[i * 3 + 1] = (Math.random() - 0.5) * 4;
+  ringPos[i * 3 + 2] = Math.sin(angle) * r;
+}
+const ringGeo = new THREE.BufferGeometry();
+ringGeo.setAttribute('position', new THREE.BufferAttribute(ringPos, 3));
+const ringMat = new THREE.PointsMaterial({ color: 0x00f5d4, size: 0.35, transparent: true, opacity: 0.45 });
+const ring = new THREE.Points(ringGeo, ringMat);
+scene.add(ring);
+
+/* ── Mouse tracking ── */
+let mouseX = 0, mouseY = 0;
+document.addEventListener('mousemove', e => {
+  mouseX = (e.clientX / window.innerWidth - 0.5) * 2;
+  mouseY = (e.clientY / window.innerHeight - 0.5) * 2;
+});
+
+/* ── Scroll tracking ── */
+let scrollY = 0;
+window.addEventListener('scroll', () => { scrollY = window.scrollY; });
+
+/* ── Resize ── */
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+/* ── Animate ── */
+const clock = new THREE.Clock();
+function animate() {
+  requestAnimationFrame(animate);
+  const t = clock.getElapsedTime();
+
+  /* Knot */
+  knot.rotation.x     = t * 0.18;
+  knot.rotation.y     = t * 0.25;
+  knotWire.rotation.x = t * 0.18;
+  knotWire.rotation.y = t * 0.25;
+
+  /* Subtle scale pulse */
+  const pulse = 1 + Math.sin(t * 1.2) * 0.025;
+  knot.scale.setScalar(pulse);
+
+  /* Ring spin */
+  ring.rotation.y = t * 0.07;
+  ring.rotation.x = Math.sin(t * 0.04) * 0.15;
+
+  /* Floaters */
+  floaters.forEach(f => {
+    f.rotation.x += f.userData.speedX;
+    f.rotation.y += f.userData.speedY;
+    f.rotation.z += f.userData.speedZ;
+    f.position.y += Math.sin(t + f.userData.floatOff) * 0.008;
+  });
+
+  /* Camera parallax */
+  camera.position.x += (mouseX * 18 - camera.position.x) * 0.025;
+  camera.position.y += (-mouseY * 12 - camera.position.y) * 0.025;
+  camera.position.z  = 80 + scrollY * 0.04;
+  camera.lookAt(scene.position);
+
+  /* Lights orbit */
+  pointA.position.x = Math.cos(t * 0.4) * 60;
+  pointA.position.z = Math.sin(t * 0.4) * 60;
+  pointB.position.x = Math.cos(t * 0.3 + 2) * 50;
+  pointB.position.z = Math.sin(t * 0.3 + 2) * 50;
+
+  renderer.render(scene, camera);
+}
+animate();
+
+/* ───────────────────────────────────────────────
+   CUSTOM CURSOR
+─────────────────────────────────────────────── */
+const cur  = document.getElementById('cursor');
+const curR = document.getElementById('cursorRing');
+let cx = 0, cy = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { cx = e.clientX; cy = e.clientY; });
+(function moveCursor() {
+  requestAnimationFrame(moveCursor);
+  rx += (cx - rx) * 0.12;
+  ry += (cy - ry) * 0.12;
+  cur.style.transform  = `translate(${cx - 6}px, ${cy - 6}px)`;
+  curR.style.transform = `translate(${rx - 20}px, ${ry - 20}px)`;
+})();
+
+/* ───────────────────────────────────────────────
+   SCROLL REVEAL
+─────────────────────────────────────────────── */
+const revealEls = document.querySelectorAll('.stat-card, .feat-card');
+const observer  = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add('visible'), i * 80);
+    }
+  });
+}, { threshold: 0.15 });
+revealEls.forEach(el => observer.observe(el));
+
+/* ───────────────────────────────────────────────
+   COUNT-UP ANIMATION
+─────────────────────────────────────────────── */
+function countUp(el) {
+  const target = parseInt(el.dataset.count, 10);
+  const dur = 1800;
+  const step = 16;
+  let current = 0;
+  const inc = target / (dur / step);
+  const timer = setInterval(() => {
+    current += inc;
+    if (current >= target) { current = target; clearInterval(timer); }
+    el.textContent = Math.floor(current);
+  }, step);
+}
+const statObserver = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.stat-num').forEach(countUp);
+      statObserver.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.4 });
+document.querySelectorAll('.stat-card').forEach(c => statObserver.observe(c));
+</script>
+</body>
+</html>
